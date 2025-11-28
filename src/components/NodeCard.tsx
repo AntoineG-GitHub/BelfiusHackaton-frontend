@@ -1,25 +1,72 @@
+import React, { useState } from "react";
+
+type Variant = "input" | "transform" | "output" | "default";
+
 interface NodeCardProps {
   label: string;
   onClick: () => void;
+  variant?: Variant;
+  isOutlined?: boolean;
+  className?: string;
 }
 
-export function NodeCard({ label, onClick }: NodeCardProps) {
+export function NodeCard({
+  label,
+  onClick,
+  variant = "default",
+  isOutlined = false,
+  className = "",
+}: NodeCardProps) {
+  const [localHover, setLocalHover] = useState(false);
+  const showRed = isOutlined || localHover;
+
+  const variantMap: Record<Variant, { accent: string; text: string }> = {
+    input: { accent: "bg-emerald-400", text: "text-emerald-800" },
+    transform: { accent: "bg-sky-400", text: "text-sky-800" },
+    output: { accent: "bg-rose-400", text: "text-rose-800" },
+    default: { accent: "bg-gray-300", text: "text-gray-800" },
+  };
+  const v = variantMap[variant];
+
+  const borderRadius = "14px";
+
+  // box-shadow ring (curved) used instead of outline so radius is respected
+  const redStyle: React.CSSProperties = {
+    border: "2px solid transparent",
+    boxShadow: "0 8px 30px rgba(220,0,120,0.12), 0 0 0 2px rgba(220,0,120,1)",
+    borderRadius,
+    overflow: "hidden",
+  };
+
+  const baseStyle: React.CSSProperties = {
+    borderRadius,
+    overflow: "hidden",
+  };
+
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="bg-white box-border content-stretch flex flex-col gap-[8px] items-start justify-end max-h-[144px] min-h-[92px] px-0 py-[12px] relative rounded-[24px] shrink-0 w-full hover:shadow-lg transition-shadow cursor-pointer"
+      aria-label={label}
+      onMouseEnter={() => setLocalHover(true)}
+      onMouseLeave={() => setLocalHover(false)}
+      onFocus={() => setLocalHover(true)}
+      onBlur={() => setLocalHover(false)}
+      style={showRed ? { ...baseStyle, ...redStyle } : baseStyle}
+      className={`relative w-full min-h-[92px] max-h-[144px] bg-white flex items-center justify-center px-4 py-3 cursor-pointer transition-transform duration-200 ease-out border border-[#e6eaee] ${className}`}
     >
-      <div aria-hidden="true" className="absolute border border-[#d6dce2] border-solid inset-0 pointer-events-none rounded-[24px] shadow-[0px_0px_6px_0px_rgba(0,0,0,0.04),4px_4px_8px_0px_rgba(0,0,0,0.02),2px_2px_2px_0px_rgba(0,0,0,0.04)]" />
-      <div className="max-h-[80px] min-h-[28px] relative shrink-0 w-full">
-        <div className="flex flex-row items-center max-h-inherit min-h-inherit overflow-clip rounded-[inherit] size-full">
-          <div className="box-border content-stretch flex gap-[2px] items-center max-h-inherit min-h-inherit px-[16px] py-[2px] relative w-full">
-            <p className="basis-0 font-['Inter:Regular',sans-serif] font-normal grow leading-[20px] min-h-px min-w-px not-italic relative shrink-0 text-[#41525d] text-[14px] tracking-[0.25px]">
-              {label}
-            </p>
-          </div>
-        </div>
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${v.accent}`} />
+      <div className={`absolute left-3 top-3 w-2 h-2 ${v.accent} rounded-full shadow-sm`} />
+      <div className="w-full px-2 text-center">
+        <p className={`text-[14px] leading-[20px] font-medium ${v.text} truncate`}>{label}</p>
       </div>
-      <div className="absolute inset-0 pointer-events-none shadow-[0px_0px_0px_1px_inset_rgba(255,255,255,0.08)]" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          borderRadius,
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+        }}
+      />
     </button>
   );
 }
