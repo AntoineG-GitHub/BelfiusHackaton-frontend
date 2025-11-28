@@ -13,8 +13,8 @@ import {
   applyEdgeChanges, 
   NodeChange, 
   EdgeChange,
-  addEdge,  // ✅ Add this import
-  Connection  // ✅ Add this import
+  addEdge,
+  Connection
 } from "@xyflow/react";
 
 export default function Build() {
@@ -24,7 +24,6 @@ export default function Build() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
-  // Proper React Flow change handlers
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
     []
@@ -35,74 +34,91 @@ export default function Build() {
     []
   );
 
-  // ✅ Fix: Use addEdge utility and useCallback
   const onConnect = useCallback(
-    (connection: Connection) => {
-      setEdges((eds) => addEdge(connection, eds));
-    },
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
     []
   );
 
-  // Convert current nodes/edges to API sequence format
   const buildSequenceFromFlow = () => {
-    return nodes.map((node) => {
-      const next = edges.filter((e) => e.source === node.id).map((e) => e.target);
-      const prev = edges.filter((e) => e.target === node.id).map((e) => e.source);
-      return { id: node.id, label: node.data.label, prev, next };
+    const components = nodes.map((node) => {
+      const prevNodes = edges
+        .filter((e) => e.target === node.id)
+        .map((e) => e.source);
+
+      return {
+        node_id: node.id,
+        component_name: node.data.label || "Node",
+        description: node.data.description || "",
+        params: node.data.params || {},
+        input_ids: prevNodes.length === 0 ? null : prevNodes.length === 1 ? prevNodes[0] : prevNodes,
+      };
     });
+
+    return { components };
   };
 
   const handleTaskSubmit = async () => {
     const payload = {
-      user_prompt: taskDescription,
-      sequence: buildSequenceFromFlow(),
+      content_b64: btoa(taskDescription),
+      flow: buildSequenceFromFlow(),
     };
 
     try {
       const response = await submitFlowTask(payload);
-
       setTaskDescription("");
       setShowNodeLibrary(true);
 
-      // Handle both wrapped and raw array responses
-      let seq: any[] = [];
-      if (Array.isArray(response)) {
-        seq = response;
-      } else if (Array.isArray(response.data?.sequence)) {
-        seq = response.data.sequence;
-      } else {
-        seq = [];
+      // Extract components array from response
+      const seq: any[] = Array.isArray(response.components)
+      ? response.components
+      : [];
+
+      if (!seq.length) {
+        console.warn("No components received from API");
+        return;
       }
 
-      if (seq.length === 0) return;
-
-      // Map API sequence to React Flow nodes (ensure position exists)
-      const newNodes: Node[] = seq.map((node, index) => ({
-        id: node.id,
-        type: "default",
-        data: { label: node.label },
-        position: node.position || { x: 100, y: index * 120 },
+      // --- CREATE NODES ---
+      const newNodes: Node[] = seq.map((comp, index) => ({
+        id: String(comp.node_id), // ensure string ID
+        type: "default", // use default for now to debug
+        data: { 
+          label: comp.component_name,
+          description: comp.description,
+          params: comp.params
+        },
+        position: { x: 100, y: index * 120 }, // simple vertical layout
       }));
 
-      // Map next connections to edges, only if target exists
+      // --- CREATE EDGES ---
       const nodeIds = newNodes.map((n) => n.id);
       const newEdges: Edge[] = [];
-      seq.forEach((node) => {
-        node.next?.forEach((nextId: string) => {
-          if (nodeIds.includes(nextId)) {
+
+      seq.forEach((comp) => {
+        if (!comp.input_ids) return;
+
+        const inputs = Array.isArray(comp.input_ids) ? comp.input_ids : [comp.input_ids];
+
+        inputs.forEach((inputId: string) => {
+          if (nodeIds.includes(String(inputId))) {
             newEdges.push({
-              id: `${node.id}-${nextId}`,
-              source: node.id,
-              target: nextId,
+              id: `${inputId}-${comp.node_id}`,
+              source: String(inputId),
+              target: String(comp.node_id),
               animated: true,
             });
+          } else {
+            console.warn(`Edge skipped, input_id not found: ${inputId}`);
           }
         });
       });
 
-      // Update state safely
+      console.log("Nodes to render:", newNodes);
+      console.log("Edges to render:", newEdges);
+
       setNodes(newNodes);
       setEdges(newEdges);
+
     } catch (error) {
       console.error("Failed to submit task:", error);
     }
@@ -147,19 +163,25 @@ export default function Build() {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnect}  // ✅ Now using proper onConnect
-          onRefresh={() => console.log("Refresh clicked")}
-          onDone={() => {
-            // Open the Run modal instead of logging
-            setShowRunModal(true);
+          onConnect={onConnect}
+          onRefresh={() => {
+            const fileData = JSON.stringify({ nodes, edges }, null, 2);
+            const blob = new Blob([fileData], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "flow-data.json";
+            link.click();
+            URL.revokeObjectURL(url);
           }}
+          onDone={() => console.log("Done clicked")}
         />
+
         <RunModal
           open={showRunModal}
           onOpenChange={(open: boolean) => setShowRunModal(open)}
           onRun={(files: File[]) => {
             console.log("Run clicked with files:", files);
-            // Add run logic here (upload/process files with current flow)
           }}
         />
       </div>

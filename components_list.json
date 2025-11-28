@@ -1,18 +1,14 @@
 {
   "input_components": [
     {
-      "name": "Image Input Component",
+      "name": "Image Input",
       "description": "A component that processes image input data.",
       "params": {
         "properties": {
           "image_format": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "default": "png",
             "title": "Image Format"
@@ -29,9 +25,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "image_data"
-        ],
+        "required": ["image_data"],
         "title": "Inputs",
         "type": "object"
       },
@@ -43,28 +37,22 @@
             "type": "string"
           }
         },
-        "required": [
-          "processed_image"
-        ],
+        "required": ["processed_image"],
         "title": "Outputs",
         "type": "object"
       }
     },
     {
-      "name": "Audio Input Component",
+      "name": "Audio Input",
       "description": "A component that processes audio input data.",
       "params": {
         "properties": {
           "sample_rate": {
             "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "integer" },
+              { "type": "null" }
             ],
-            "default": 16000,
+            "default": null,
             "title": "Sample Rate"
           }
         },
@@ -79,9 +67,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "audio_data"
-        ],
+        "required": ["audio_data"],
         "title": "Inputs",
         "type": "object"
       },
@@ -93,26 +79,20 @@
             "type": "string"
           }
         },
-        "required": [
-          "processed_audio"
-        ],
+        "required": ["processed_audio"],
         "title": "Outputs",
         "type": "object"
       }
     },
     {
-      "name": "Document Input Component",
+      "name": "Document Input",
       "description": "A component that processes document input data.",
       "params": {
         "properties": {
           "file_type": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "default": "pdf",
             "title": "File Type"
@@ -129,9 +109,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "document_data"
-        ],
+        "required": ["document_data"],
         "title": "Inputs",
         "type": "object"
       },
@@ -143,15 +121,13 @@
             "type": "string"
           }
         },
-        "required": [
-          "processed_document"
-        ],
+        "required": ["processed_document"],
         "title": "Outputs",
         "type": "object"
       }
     },
     {
-      "name": "Text Input Component",
+      "name": "Text Input",
       "description": "A component that processes text input data.",
       "params": null,
       "inputs": {
@@ -162,9 +138,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "text_data"
-        ],
+        "required": ["text_data"],
         "title": "Inputs",
         "type": "object"
       },
@@ -175,9 +149,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "processed_text"
-        ],
+        "required": ["processed_text"],
         "title": "Outputs",
         "type": "object"
       }
@@ -185,18 +157,13 @@
   ],
   "transformation_components": [
     {
-      "name": "LLM Component",
+      "name": "LLM",
       "description": "A component that interacts with a large language model to generate text based on input.",
       "params": {
         "properties": {
-          "prompt": {
-            "title": "Prompt",
-            "type": "string"
-          }
+          "prompt": { "title": "Prompt", "type": "string" }
         },
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "Params",
         "type": "object"
       },
@@ -204,75 +171,46 @@
         "properties": {
           "text": {
             "anyOf": [
-              {
-                "items": {
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
+              { "items": { "type": "string" }, "type": "array" },
+              { "type": "null" }
             ],
             "title": "Text"
           },
           "img": {
             "anyOf": [
-              {
-                "items": {
-                  "format": "binary",
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
+              { "items": { "format": "binary", "type": "string" }, "type": "array" },
+              { "type": "null" }
             ],
             "title": "Img"
           }
         },
-        "required": [
-          "text",
-          "img"
-        ],
+        "required": ["text", "img"],
         "title": "Inputs",
         "type": "object"
       },
       "outputs": {
         "properties": {
-          "response": {
-            "title": "Response",
-            "type": "string"
-          }
+          "response": { "title": "Response", "type": "string" }
         },
-        "required": [
-          "response"
-        ],
+        "required": ["response"],
         "title": "Outputs",
         "type": "object"
       }
     },
     {
-      "name": "Speech to Text Component",
+      "name": "Speech to Text",
       "description": "A component that converts speech audio input into text transcription.",
       "params": {
         "properties": {
           "prompt": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "title": "Prompt"
           }
         },
-        "required": [
-          "prompt"
-        ],
+        "required": ["prompt"],
         "title": "Params",
         "type": "object"
       },
@@ -290,33 +228,22 @@
           },
           "language": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "default": "en",
             "title": "Language"
           }
         },
-        "required": [
-          "audio"
-        ],
+        "required": ["audio"],
         "title": "Inputs",
         "type": "object"
       },
       "outputs": {
         "properties": {
-          "transcript": {
-            "title": "Transcript",
-            "type": "string"
-          }
+          "transcript": { "title": "Transcript", "type": "string" }
         },
-        "required": [
-          "transcript"
-        ],
+        "required": ["transcript"],
         "title": "Outputs",
         "type": "object"
       }
@@ -324,23 +251,14 @@
   ],
   "output_components": [
     {
-      "name": "Save to Folder Component",
+      "name": "Save to Folder",
       "description": "A component that saves input file data to a specified folder path.",
       "params": {
         "properties": {
-          "file_name": {
-            "title": "File Name",
-            "type": "string"
-          },
-          "folder_path": {
-            "title": "Folder Path",
-            "type": "string"
-          }
+          "file_name": { "title": "File Name", "type": "string" },
+          "folder_path": { "title": "Folder Path", "type": "string" }
         },
-        "required": [
-          "file_name",
-          "folder_path"
-        ],
+        "required": ["file_name", "folder_path"],
         "title": "Params",
         "type": "object"
       },
@@ -348,53 +266,37 @@
         "properties": {
           "file_data": {
             "anyOf": [
-              {
-                "format": "binary",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "format": "binary", "type": "string" },
+              { "type": "null" }
             ],
             "title": "File Data"
           },
           "file_text": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "title": "File Text"
           }
         },
-        "required": [
-          "file_data",
-          "file_text"
-        ],
+        "required": ["file_data", "file_text"],
         "title": "Inputs",
         "type": "object"
       },
       "outputs": null
     },
     {
-      "name": "Send Email Component",
+      "name": "Send Email",
       "description": "A component that sends an email with optional attachment and body content.",
       "params": {
         "properties": {
           "recipient_emails": {
-            "items": {
-              "type": "string"
-            },
+            "items": { "type": "string" },
             "title": "Recipient Emails",
             "type": "array"
           }
         },
-        "required": [
-          "recipient_emails"
-        ],
+        "required": ["recipient_emails"],
         "title": "Params",
         "type": "object"
       },
@@ -402,76 +304,55 @@
         "properties": {
           "attachment": {
             "anyOf": [
-              {
-                "format": "binary",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "format": "binary", "type": "string" },
+              { "type": "null" }
             ],
             "title": "Attachment"
           },
           "body": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "title": "Body"
           },
-          "subject": {
-            "title": "Subject",
-            "type": "string"
-          }
+          "html_body": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Html Body"
+          },
+          "subject": { "title": "Subject", "type": "string" }
         },
-        "required": [
-          "attachment",
-          "body",
-          "subject"
-        ],
+        "required": ["attachment", "body", "html_body", "subject"],
         "title": "Inputs",
         "type": "object"
       },
       "outputs": null
     },
     {
-      "name": "Display Component",
+      "name": "Display",
       "description": "A component that displays content to the user interface.",
       "params": null,
       "inputs": {
         "properties": {
           "text": {
             "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "type": "string" },
+              { "type": "null" }
             ],
             "title": "Text"
           },
           "image": {
             "anyOf": [
-              {
-                "format": "binary",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
+              { "format": "binary", "type": "string" },
+              { "type": "null" }
             ],
             "title": "Image"
           }
         },
-        "required": [
-          "text",
-          "image"
-        ],
+        "required": ["text", "image"],
         "title": "Inputs",
         "type": "object"
       },
