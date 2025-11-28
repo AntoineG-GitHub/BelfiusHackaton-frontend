@@ -191,6 +191,41 @@ export default function Build() {
     []
   );
 
+  const computeSequence = () => {
+  // Step 1: Create a map from node IDs to node objects
+  const nodeMap: Record<string, { id: string; label: string; prev: string[]; next: string[] }> = {};
+
+  nodes.forEach((node) => {
+    nodeMap[node.id] = {
+      id: node.id,
+      label: node.data.label,
+      prev: [],
+      next: [],
+    };
+  });
+
+  // Step 2: Loop through edges to populate prev and next
+  edges.forEach((edge) => {
+    const { source, target } = edge;
+
+    if (nodeMap[source] && nodeMap[target]) {
+      // source node points to target
+      nodeMap[source].next.push(target);
+      // target node comes after source
+      nodeMap[target].prev.push(source);
+    }
+  });
+
+  // Step 3: Return as array
+  return Object.values(nodeMap);
+};
+
+  const handleSubmit = () => {
+    const sequence = computeSequence();
+    const jsonOutput = JSON.stringify(sequence, null, 2);
+  console.log("Flow JSON:", jsonOutput);
+  };
+
   /* ----------------------
      Generate flow from fake API
   -----------------------*/
@@ -269,7 +304,7 @@ export default function Build() {
             <button className="border border-[#dc0078] text-[#dc0078] px-[20px] py-[8px] rounded-[9999px]">
               Refresh
             </button>
-            <button className="bg-[#dc0078] text-white px-[20px] py-[8px] rounded-[9999px]">
+            <button className="bg-[#dc0078] text-white px-[20px] py-[8px] rounded-[9999px]" onClick={handleSubmit}>
               Done
             </button>
           </div>
