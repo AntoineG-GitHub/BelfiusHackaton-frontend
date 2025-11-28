@@ -18,15 +18,20 @@ export function FileUploadNode({ data }: FileUploadNodeProps) {
 
   return (
     <div className="bg-white border border-gray-300 p-3 rounded-lg shadow-sm w-[200px]">
-      <p className="text-sm font-medium text-gray-700 mb-2">{data.label}</p>
+      <p className="text-sm font-medium text-gray-700 mb-2 center-text">{data.label}</p>
 
       <div className="border-2 border-dashed border-gray-400 rounded p-2 text-center text-xs text-gray-500">
-        <input type="file" onChange={handleFileChange} className="w-full cursor-pointer" />
-        <p className="mt-1">{data.file ? data.file.name : "Drop a file here"}</p>
+        <input 
+          type="file" 
+          onChange={handleFileChange} 
+          className="w-full cursor-pointer full-border" 
+        />
+        {/* <p className="mt-1">{file ? file.name : "Drop a file here"}</p> */}
       </div>
 
-      <Handle type="target" position={Position.Left} />
-      <Handle type="source" position={Position.Right} />
+      {/* Optional React Flow handles */}
+      {/* <Handle type="target" position={Position.Top} /> */}
+      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 }

@@ -110,7 +110,7 @@ export default function Build() {
               id: `${inputId}-${comp.node_id}`,
               source: String(inputId),
               target: String(comp.node_id),
-              animated: true,
+              animated: false,
             });
           } else {
             console.warn(`Edge skipped, input_id not found: ${inputId}`);
