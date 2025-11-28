@@ -1286,8 +1286,8 @@ html {
 .modal-outer {
   backdrop-filter: blur(4px);
   background-color: rgba(0, 0, 0, 0);
-  position: fixed
-  ;
+  position: fixed;
+  z-index: 10000000;
 }
 
 .modal-inner {
