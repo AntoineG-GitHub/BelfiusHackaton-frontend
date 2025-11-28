@@ -184,45 +184,49 @@ export default function Build() {
             URL.revokeObjectURL(url);
           }}
           onDone={async () => {
-          const sequence = buildSequenceFromFlow();
-          console.log("Recomposed Flow Sequence:", sequence);
+            const sequence = buildSequenceFromFlow();
+            console.log("Recomposed Flow Sequence:", sequence);
 
-          try {
-            // Load the local file
-            const fileResponse = await fetch("../test.txt");
-            const fileBuffer = await fileResponse.arrayBuffer();
-            const uint8Array = new Uint8Array(fileBuffer);
+            try {
+              // Load the local file
+              const fileResponse = await fetch("../test.txt");
+              const fileBuffer = await fileResponse.arrayBuffer();
+              const uint8Array = new Uint8Array(fileBuffer);
 
-            // Convert to Base64 string for JSON transmission
-            const base64Data = btoa(String.fromCharCode(...uint8Array));
+              // Convert to Base64 string for JSON transmission
+              const base64Data = btoa(String.fromCharCode(...uint8Array));
 
-            // Build the request body following ExecuteRequest/InputData format
-            const payload = {
-              approved_by_user: true,
-              updated_sequence: sequence,
-              docs_to_use: [
-                {
-                  node_id: "processed_doc", // you can choose a dummy ID
-                  data: base64Data
-                }
-              ]
-            };
+              // Get the first node_id from the current nodes (after API response)
+              const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
 
-            const res = await fetch("http://127.0.0.1:8000/api/run_flow", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(payload),
-            });
+              // Build the request body following ExecuteRequest/InputData format
+              const payload = {
+                approved_by_user: true,
+                updated_sequence: sequence,
+                docs_to_use: [
+                  {
+                    node_id: firstNodeId,
+                    data: base64Data,
+                  },
+                ],
+              };
 
-            const data = await res.json();
-            console.log("Second API response:", data);
+              const res = await fetch("http://127.0.0.1:8000/api/run_flow", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              });
 
-          } catch (err) {
-            console.error("Error calling second API:", err);
-          }
-        }}
+              const data = await res.json();
+              console.log("Second API response:", data);
+
+            } catch (err) {
+              console.error("Error calling second API:", err);
+            }
+          }}
+
 
 
 
