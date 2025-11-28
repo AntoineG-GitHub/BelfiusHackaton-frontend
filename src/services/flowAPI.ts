@@ -13,15 +13,13 @@ interface FlowNode {
 
 // Payload structure sent to the backend
 export interface FlowPayload {
-  user_prompt: string;
+  chat: string;
   sequence: FlowNode[];
 }
 
 // API response structure (adjust based on your actual API)
 export interface FlowApiResponse {
-  success: boolean;
-  data?: any;
-  message?: string;
+  components: any[];
 }
 
 /**
@@ -35,7 +33,7 @@ export const submitFlowTask = async (
   try {
     console.log("Sending JSON to backend:", payload);
 
-    const response = await fetch("https://example.com/api/tasks", {
+    const response = await fetch("http://127.0.0.1:8000/api/send_text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

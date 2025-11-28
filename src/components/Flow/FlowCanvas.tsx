@@ -3,6 +3,7 @@
  * React Flow diagram canvas with controls
  */
 
+import React from "react"; // ← ADD THIS
 import {
   ReactFlow,
   Background,
@@ -12,8 +13,12 @@ import {
   OnNodesChange,
   OnEdgesChange,
   OnConnect,
+  NodeTypes,
+  Handle,
+  Position,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { FileUploadNode } from "./FileUploadNode";
 
 interface FlowCanvasProps {
   nodes: Node[];
@@ -28,13 +33,6 @@ interface FlowCanvasProps {
 /**
  * Flow Canvas Component
  * Renders the React Flow diagram with interactive controls
- * @param nodes - Array of flow nodes
- * @param edges - Array of connections between nodes
- * @param onNodesChange - Callback for node changes
- * @param onEdgesChange - Callback for edge changes
- * @param onConnect - Callback for new connections
- * @param onRefresh - Optional callback for refresh button
- * @param onDone - Callback for done button
  */
 export function FlowCanvas({
   nodes,
@@ -45,6 +43,9 @@ export function FlowCanvas({
   onRefresh,
   onDone,
 }: FlowCanvasProps) {
+  // Register custom node type
+  const nodeTypes: NodeTypes = { fileUpload: FileUploadNode };
+
   return (
     <div className="bg-[#f1f0f0] flex-1 relative">
       {/* Top action buttons */}
@@ -54,7 +55,7 @@ export function FlowCanvas({
             onClick={onRefresh}
             className="border border-[#dc0078] text-[#dc0078] px-[20px] py-[8px] rounded-[9999px] hover:bg-[#dc0078] hover:text-white transition-colors"
           >
-            Refresh
+            Download File
           </button>
         )}
         <button
@@ -74,11 +75,46 @@ export function FlowCanvas({
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           fitView
+          nodeTypes={nodeTypes} // register custom nodes
         >
           <Background />
           <Controls />
         </ReactFlow>
       </div>
+    </div>
+  );
+}
+
+/**
+ * FileUploadNode component
+ * A custom React Flow node with an internal file upload system
+ */
+export function FileUploadNode({ data }: { data: { label: string } }) {
+  const [file, setFile] = React.useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+      console.log(`File uploaded for node "${data.label}":`, e.target.files[0]);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-300 p-3 rounded-lg shadow-sm w-[200px]">
+      <p className="text-sm font-medium text-gray-700 mb-2">{data.label}</p>
+
+      <div className="border-2 border-dashed border-gray-400 rounded p-2 text-center text-xs text-gray-500">
+        <input
+          type="file"
+          onChange={handleFileChange}
+          className="w-full cursor-pointer"
+        />
+        <p className="mt-1">{file ? file.name : "Drop a file here"}</p>
+      </div>
+
+      {/* Handles */}
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} />
     </div>
   );
 }
