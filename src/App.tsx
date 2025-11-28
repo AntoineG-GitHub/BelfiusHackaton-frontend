@@ -24,6 +24,12 @@ export default function Build() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  // Delete a node and any edges connected to it
+  const handleDeleteNode = (id: string) => {
+    setNodes((prev) => prev.filter((n) => n.id !== id));
+    setEdges((prev) => prev.filter((e) => e.source !== id && e.target !== id));
+  };
+
   // Proper React Flow change handlers
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -79,8 +85,8 @@ export default function Build() {
       // Map API sequence to React Flow nodes (ensure position exists)
       const newNodes: Node[] = seq.map((node, index) => ({
         id: node.id,
-        type: "default",
-        data: { label: node.label },
+        type: "flowNode",
+        data: { label: node.label, onDelete: (nid: string) => handleDeleteNode(nid) },
         position: node.position || { x: 100, y: index * 120 },
       }));
 
@@ -129,10 +135,11 @@ export default function Build() {
           {showNodeLibrary && (
             <NodeLibrary
               onAddNode={(label: string) => {
+                const id = `node-${nodes.length}`;
                 const newNode: Node = {
-                  id: `node-${nodes.length}`,
-                  type: "default",
-                  data: { label },
+                  id,
+                  type: "flowNode",
+                  data: { label, onDelete: (nid: string) => handleDeleteNode(nid) },
                   position: { x: 100, y: nodes.length * 120 },
                 };
                 setNodes((prev) => [...prev, newNode]);
