@@ -1,0 +1,42 @@
+[
+  {
+    "description": "This node allows the user to upload an image which will be processed for description generation.",
+    "name": "Image Input Component",
+    "params": {
+      "image_format": "png"
+    },
+    "input_ids": {
+      "image_data": null
+    },
+    "output_ids": {
+      "processed_image": "processed_img"
+    }
+  },
+  {
+    "description": "This node takes the processed image from the previous node and generates a description using a large language model.",
+    "name": "LLM Component",
+    "params": {
+      "prompt": "Generate a description for the following image"
+    },
+    "input_ids": {
+      "text": null,
+      "img": "processed_img"
+    },
+    "output_ids": {
+      "response": "description"
+    }
+  },
+  {
+    "description": "This node saves the generated description from the LLM Component to disk at the specified file path.",
+    "name": "Save to Folder Component",
+    "params": {
+      "file_name": "description.txt",
+      "folder_path": "descriptions/"
+    },
+    "input_ids": {
+      "file_data": null,
+      "file_text": "description"
+    },
+    "output_ids": {}
+  }
+]
