@@ -14,7 +14,7 @@ import {
   OnEdgesChange,
   OnConnect,
 } from "@xyflow/react";
-import { fakeApiResponse, DEFAULT_FLOW_CONFIG } from "../constants/flowData";
+import { DEFAULT_FLOW_CONFIG } from "../constants/flowData";
 import { FlowNode } from "../services/flowApi";
 
 export const useFlowManager = () => {
@@ -130,14 +130,14 @@ export const useFlowManager = () => {
    * Initialize flow on mount with fake API data
    * In production, this would fetch from your actual backend
    */
-  useEffect(() => {
-    try {
-      const json = JSON.parse(fakeApiResponse);
-      createFlowFromSequence(json.sequence);
-    } catch (err) {
-      console.error("Invalid fake API JSON");
-    }
-  }, [createFlowFromSequence]);
+  // useEffect(() => {
+  //   try {
+  //     const json = JSON.parse(fakeApiResponse);
+  //     createFlowFromSequence(json.sequence);
+  //   } catch (err) {
+  //     console.error("Invalid fake API JSON");
+  //   }
+  // }, [createFlowFromSequence]);
 
   return {
     nodes,

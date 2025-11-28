@@ -60,13 +60,18 @@ export function NodeCanvas({ nodes, onNodeMove, onDeleteNode }: NodeCanvasProps)
         {nodes.map((node, index) => {
           if (index === 0) return null;
           const prevNode = nodes[index - 1];
+          // Assume node width ~117 and height ~92 as used by CanvasNode
+          const nodeCenterX = node.x + 58.5;
+          const nodeCenterY = node.y + 46;
+          const prevCenterX = prevNode.x + 58.5;
+          const prevCenterY = prevNode.y + 46;
           return (
             <line
               key={`line-${node.id}`}
-              x1={prevNode.x + 58.5}
-              y1={prevNode.y + 46}
-              x2={node.x}
-              y2={node.y + 46}
+              x1={prevCenterX}
+              y1={prevCenterY}
+              x2={nodeCenterX}
+              y2={nodeCenterY}
               stroke="#000000"
               strokeWidth="2"
             />

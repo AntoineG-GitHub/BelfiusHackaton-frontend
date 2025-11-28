@@ -13,6 +13,7 @@ import {
   OnEdgesChange,
   OnConnect,
 } from "@xyflow/react";
+import FlowNode from './FlowNode';
 import "@xyflow/react/dist/style.css";
 
 interface FlowCanvasProps {
@@ -73,6 +74,7 @@ export function FlowCanvas({
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          nodeTypes={{ flowNode: FlowNode }}
           fitView
         >
           <Background />
