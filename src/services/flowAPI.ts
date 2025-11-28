@@ -4,7 +4,7 @@
  */
 
 // Type definition for the flow node structure sent to backend
-export interface FlowNode {
+interface FlowNode {
   id: string;
   label: string;
   prev: string[];
@@ -13,15 +13,13 @@ export interface FlowNode {
 
 // Payload structure sent to the backend
 export interface FlowPayload {
-  user_prompt: string;
+  chat: string;
   sequence: FlowNode[];
 }
 
 // API response structure (adjust based on your actual API)
 export interface FlowApiResponse {
-  success: boolean;
-  data?: any;
-  message?: string;
+  components: any[];
 }
 
 /**
@@ -35,7 +33,7 @@ export const submitFlowTask = async (
   try {
     console.log("Sending JSON to backend:", payload);
 
-    const response = await fetch("https://example.com/api/tasks", {
+    const response = await fetch("http://127.0.0.1:8000/api/send_text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -50,7 +48,27 @@ export const submitFlowTask = async (
 
     return data;
   } catch (error) {
-    console.error("API error:", error);
-    throw error;
+    console.warn(
+      "API call failed, falling back to local JSON file. Error:",
+      error
+    );
+
+    try {
+      // Read from local JSON file in public folder
+      const fallbackResponse = await fetch("/sequence.json");
+      if (!fallbackResponse.ok) {
+        throw new Error(`Failed to load local JSON: ${fallbackResponse.statusText}`);
+      }
+
+      const localData = await fallbackResponse.json();
+      console.log("Return from the call:", localData);
+
+      return localData as FlowApiResponse;
+    } catch (localError) {
+      console.error("Failed to load fallback JSON:", localError);
+      // Return a generic failure response
+      return { success: false, message: "Failed to fetch API and fallback JSON" };
+    }
   }
 };
+

@@ -6,7 +6,7 @@ interface NodeLibraryProps {
   onAddNode: (nodeType: string) => void;
 }
 
-// Extract all component names from the JSON
+// Extract all components
 const allComponents = [
   ...componentsJson.input_components,
   ...componentsJson.transformation_components,
@@ -33,25 +33,8 @@ export function NodeLibrary({ onAddNode }: NodeLibraryProps) {
 
             {/* Tooltip */}
             {hoveredComponent === comp && (
-              <div className="absolute z-10 left-full ml-2 top-0 w-[220px] p-2 bg-white border border-gray-300 rounded shadow-lg text-sm">
-                <div className="font-semibold mb-1">{comp.name}</div>
-                <div className="text-gray-600 mb-1">{comp.description}</div>
-                <div className="text-xs font-semibold">Inputs:</div>
-                <ul className="text-xs mb-1">
-                  {comp.inputs?.properties
-                    ? Object.keys(comp.inputs.properties).map((input) => (
-                        <li key={input}>{input}</li>
-                      ))
-                    : <li>None</li>}
-                </ul>
-                <div className="text-xs font-semibold">Outputs:</div>
-                <ul className="text-xs">
-                  {comp.outputs?.properties
-                    ? Object.keys(comp.outputs.properties).map((output) => (
-                        <li key={output}>{output}</li>
-                      ))
-                    : <li>None</li>}
-                </ul>
+              <div className="absolute z-10 left-full ml-3 top-1/2 -translate-y-1/2 w-[220px] p-3 bg-white border border-gray-200 rounded-lg shadow-md text-sm text-gray-700">
+                {comp.description}
               </div>
             )}
           </div>

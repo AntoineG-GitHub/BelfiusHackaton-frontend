@@ -1,121 +1,188 @@
-/**
- * Build Component - Main Application
- * Orchestrates the flow builder interface
- */
-
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { SideNavigation } from "./components/Navigation/SideNavigation";
 import { PaEntry } from "./components/Chat/PaEntry";
 import { TaskInput } from "./components/Flow/TaskInput";
 import { FlowCanvas } from "./components/Flow/FlowCanvas";
+import RunModal from "./components/Flow/RunModal";
 import { NodeLibrary } from "./components/NodeLibrary";
-import { useFlowManager } from "./hooks/useFlowManager";
 import { submitFlowTask } from "./services/flowApi";
+import { 
+  Node, 
+  Edge, 
+  applyNodeChanges, 
+  applyEdgeChanges, 
+  NodeChange, 
+  EdgeChange,
+  addEdge,
+  Connection
+} from "@xyflow/react";
 
-/**
- * Main Build Component
- * Coordinates all UI sections and handles user interactions
- */
 export default function Build() {
-  // Task description state
   const [taskDescription, setTaskDescription] = useState("");
+  const [showNodeLibrary, setShowNodeLibrary] = useState(false);
+  const [showRunModal, setShowRunModal] = useState(false);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
-  // Flow management hook - handles all React Flow logic
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    computeSequence,
-    addNode,
-  } = useFlowManager();
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
 
-  /**
-   * Handles task submission
-   * Computes current flow sequence and sends to backend
-   */
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+
+  const onConnect = useCallback(
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+    []
+  );
+
+  const buildSequenceFromFlow = () => {
+    const components = nodes.map((node) => {
+      const prevNodes = edges
+        .filter((e) => e.target === node.id)
+        .map((e) => e.source);
+
+      return {
+        node_id: node.id,
+        component_name: node.data.label || "Node",
+        description: node.data.description || "",
+        params: node.data.params || {},
+        input_ids: prevNodes.length === 0 ? null : prevNodes.length === 1 ? prevNodes[0] : prevNodes,
+      };
+    });
+
+    return { components };
+  };
+
   const handleTaskSubmit = async () => {
-    // Get current flow structure
-    const sequence = computeSequence();
-
-    // Prepare payload for API
     const payload = {
-      user_prompt: taskDescription,
-      sequence: sequence,
+      content_b64: btoa(taskDescription),
+      flow: buildSequenceFromFlow(),
     };
 
     try {
-      // Submit to backend
-      await submitFlowTask(payload);
-
-      // Clear textarea after successful submission
+      const response = await submitFlowTask(payload);
       setTaskDescription("");
+      setShowNodeLibrary(true);
+
+      // Extract components array from response
+      const seq: any[] = Array.isArray(response.components)
+      ? response.components
+      : [];
+
+      if (!seq.length) {
+        console.warn("No components received from API");
+        return;
+      }
+
+      // --- CREATE NODES ---
+      const newNodes: Node[] = seq.map((comp, index) => ({
+        id: String(comp.node_id), // ensure string ID
+        type: "default", // use default for now to debug
+        data: { 
+          label: comp.component_name,
+          description: comp.description,
+          params: comp.params
+        },
+        position: { x: 100, y: index * 120 }, // simple vertical layout
+      }));
+
+      // --- CREATE EDGES ---
+      const nodeIds = newNodes.map((n) => n.id);
+      const newEdges: Edge[] = [];
+
+      seq.forEach((comp) => {
+        if (!comp.input_ids) return;
+
+        const inputs = Array.isArray(comp.input_ids) ? comp.input_ids : [comp.input_ids];
+
+        inputs.forEach((inputId: string) => {
+          if (nodeIds.includes(String(inputId))) {
+            newEdges.push({
+              id: `${inputId}-${comp.node_id}`,
+              source: String(inputId),
+              target: String(comp.node_id),
+              animated: true,
+            });
+          } else {
+            console.warn(`Edge skipped, input_id not found: ${inputId}`);
+          }
+        });
+      });
+
+      console.log("Nodes to render:", newNodes);
+      console.log("Edges to render:", newEdges);
+
+      setNodes(newNodes);
+      setEdges(newEdges);
+
     } catch (error) {
       console.error("Failed to submit task:", error);
-      // TODO: Show error message to user
     }
-  };
-
-  /**
-   * Handles "Done" button click
-   * Logs the final flow JSON structure
-   */
-  const handleDone = () => {
-    const sequence = computeSequence();
-    const jsonOutput = JSON.stringify(sequence, null, 2);
-    console.log("Flow JSON:", jsonOutput);
-    
-    // TODO: Add logic to save or export the flow
-  };
-
-  /**
-   * Handles "Refresh" button click
-   * Can be used to reload or reset the flow
-   */
-  const handleRefresh = () => {
-    console.log("Refresh clicked");
-    // TODO: Implement refresh logic
   };
 
   return (
     <div className="bg-white relative w-full h-screen overflow-hidden">
-      {/* Left side navigation menu */}
       <SideNavigation />
 
-      {/* Main content area */}
       <div className="absolute left-[134px] top-0 right-0 bottom-0 flex">
-        
-        {/* LEFT PANEL - Task input and node library */}
+        {/* LEFT PANEL */}
         <div className="bg-white w-[486px] h-full border-r border-[#e7ebee] relative overflow-y-auto">
-          {/* Welcome message with avatar */}
           <PaEntry />
-
-          {/* Instruction text */}
           <div className="absolute left-[60px] top-[189px] w-[378px] text-black text-[14px]">
             I'm here to support you in completing your tasks…
           </div>
 
-          {/* Task description input with send button */}
           <TaskInput
             value={taskDescription}
             onChange={setTaskDescription}
             onSubmit={handleTaskSubmit}
           />
 
-          {/* Node Library - allows adding nodes to the flow */}
-          <NodeLibrary onAddNode={addNode} />
+          {showNodeLibrary && (
+            <NodeLibrary
+              onAddNode={(label: string) => {
+                const newNode: Node = {
+                  id: `node-${nodes.length}`,
+                  type: "default",
+                  data: { label },
+                  position: { x: 100, y: nodes.length * 120 },
+                };
+                setNodes((prev) => [...prev, newNode]);
+              }}
+            />
+          )}
         </div>
 
-        {/* RIGHT PANEL - React Flow Canvas */}
+        {/* RIGHT PANEL */}
         <FlowCanvas
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onRefresh={handleRefresh}
-          onDone={handleDone}
+          onRefresh={() => {
+            const fileData = JSON.stringify({ nodes, edges }, null, 2);
+            const blob = new Blob([fileData], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "flow-data.json";
+            link.click();
+            URL.revokeObjectURL(url);
+          }}
+          onDone={() => console.log("Done clicked")}
+        />
+
+        <RunModal
+          open={showRunModal}
+          onOpenChange={(open: boolean) => setShowRunModal(open)}
+          onRun={(files: File[]) => {
+            console.log("Run clicked with files:", files);
+          }}
         />
       </div>
     </div>
