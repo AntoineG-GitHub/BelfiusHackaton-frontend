@@ -1267,3 +1267,18 @@ html {
   syntax: "*";
   inherits: false
 }
+
+.react-flow__node-fileUpload {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.full-border {
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.center-text {
+  text-align: center;
+}
