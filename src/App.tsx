@@ -3,6 +3,7 @@ import { SideNavigation } from "./components/Navigation/SideNavigation";
 import { PaEntry } from "./components/Chat/PaEntry";
 import { TaskInput } from "./components/Flow/TaskInput";
 import { FlowCanvas } from "./components/Flow/FlowCanvas";
+import RunModal from "./components/Flow/RunModal";
 import { NodeLibrary } from "./components/NodeLibrary";
 import { submitFlowTask } from "./services/flowApi";
 import { 
@@ -19,6 +20,7 @@ import {
 export default function Build() {
   const [taskDescription, setTaskDescription] = useState("");
   const [showNodeLibrary, setShowNodeLibrary] = useState(false);
+  const [showRunModal, setShowRunModal] = useState(false);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -147,9 +149,18 @@ export default function Build() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}  // ✅ Now using proper onConnect
           onRefresh={() => console.log("Refresh clicked")}
-          onDone={() =>
-            console.log("Flow JSON:", JSON.stringify({ nodes, edges }, null, 2))
-          }
+          onDone={() => {
+            // Open the Run modal instead of logging
+            setShowRunModal(true);
+          }}
+        />
+        <RunModal
+          open={showRunModal}
+          onOpenChange={(open: boolean) => setShowRunModal(open)}
+          onRun={(files: File[]) => {
+            console.log("Run clicked with files:", files);
+            // Add run logic here (upload/process files with current flow)
+          }}
         />
       </div>
     </div>
