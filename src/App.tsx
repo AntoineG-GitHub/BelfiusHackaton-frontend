@@ -284,14 +284,42 @@ export default function Build() {
           </div>
 
           {/* Task input */}
-          <div className="absolute left-[60px] top-[250px] w-[363px]">
+          {/* Task input + Send button */}
+          <div className="absolute left-[60px] top-[250px] w-[363px] flex items-start gap-[8px]">
             <textarea
               value={taskDescription}
               onChange={(e) => setTaskDescription(e.target.value)}
               placeholder="Describe your task."
-              className="w-full bg-white border border-[#d6dce2] rounded-[24px] p-[16px] text-[14px]"
+              className="flex-1 bg-white border border-[#d6dce2] rounded-[24px] p-[16px] text-[14px]"
             />
+            <button
+              onClick={() => {
+                // Prepare JSON payload
+                const payload = {
+                  description: taskDescription,
+                  timestamp: new Date().toISOString(),
+                };
+
+                console.log("Sending JSON to backend:", payload);
+
+                // Simulate API call
+                fetch("https://example.com/api/tasks", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                })
+                  .then((res) => res.json())
+                  .then((data) => {
+                    console.log("API response:", data);
+                  })
+                  .catch((err) => console.error("API error:", err));
+              }}
+              className="bg-[#dc0078] text-white px-[16px] py-[12px] rounded-[24px]"
+            >
+              Send
+            </button>
           </div>
+
 
           {/* Node Library */}
           <NodeLibrary onAddNode={handleAddNode} />
