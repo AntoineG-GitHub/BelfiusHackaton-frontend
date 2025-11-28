@@ -284,7 +284,7 @@ export default function Build() {
           </div>
 
           {/* Task input */}
-          {/* Task input + Send button */}
+         {/* Task input + Send button */}
           <div className="absolute left-[60px] top-[250px] w-[363px] flex items-start gap-[8px]">
             <textarea
               value={taskDescription}
@@ -294,10 +294,13 @@ export default function Build() {
             />
             <button
               onClick={() => {
+                // Compute current flow sequence
+                const sequence = computeSequence();
+
                 // Prepare JSON payload
                 const payload = {
-                  description: taskDescription,
-                  timestamp: new Date().toISOString(),
+                  user_prompt: taskDescription,
+                  sequence: sequence,
                 };
 
                 console.log("Sending JSON to backend:", payload);
@@ -313,12 +316,17 @@ export default function Build() {
                     console.log("API response:", data);
                   })
                   .catch((err) => console.error("API error:", err));
+
+                // Clear textarea after sending
+                setTaskDescription("");
               }}
               className="bg-[#dc0078] text-white px-[16px] py-[12px] rounded-[24px]"
             >
               Send
             </button>
           </div>
+
+
 
 
           {/* Node Library */}
