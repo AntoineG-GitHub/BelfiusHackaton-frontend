@@ -3,9 +3,9 @@ import { SideNavigation } from "./components/Navigation/SideNavigation";
 import { PaEntry } from "./components/Chat/PaEntry";
 import { TaskInput } from "./components/Flow/TaskInput";
 import { FlowCanvas } from "./components/Flow/FlowCanvas";
-import RunModal from "./components/Flow/RunModal";
 import { NodeLibrary } from "./components/NodeLibrary";
 import { submitFlowTask } from "./services/flowApi";
+import ResponseModal from "./components/Flow/ResponseModal";
 import { 
   Node, 
   Edge, 
@@ -20,10 +20,11 @@ import {
 export default function Build() {
   const [taskDescription, setTaskDescription] = useState("");
   const [showNodeLibrary, setShowNodeLibrary] = useState(false);
-  const [showRunModal, setShowRunModal] = useState(false);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [nodeFiles, setNodeFiles] = useState<{ [nodeId: string]: File }>({});
+  const [runResponse, setRunResponse] = useState<any>(null);
+  const [showResponseModal, setShowResponseModal] = useState(false);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -69,20 +70,11 @@ export default function Build() {
       setTaskDescription("");
       setShowNodeLibrary(true);
 
-      const seq: any[] = Array.isArray(response.components)
-        ? response.components
-        : [];
-
-      if (!seq.length) {
-        console.warn("No components received from API");
-        return;
-      }
+      const seq: any[] = Array.isArray(response.components) ? response.components : [];
+      if (!seq.length) return console.warn("No components received from API");
 
       const newNodes: Node[] = seq.map((comp, index) => {
-        const type = comp.component_name.toLowerCase().includes("input")
-          ? "fileUpload"
-          : "default";
-
+        const type = comp.component_name.toLowerCase().includes("input") ? "fileUpload" : "default";
         return {
           id: String(comp.node_id),
           type,
@@ -100,27 +92,18 @@ export default function Build() {
 
       const nodeIds = newNodes.map((n) => n.id);
       const newEdges: Edge[] = [];
-
       seq.forEach((comp) => {
         if (!comp.input_ids) return;
         const inputs = Array.isArray(comp.input_ids) ? comp.input_ids : [comp.input_ids];
         inputs.forEach((inputId: string) => {
           if (nodeIds.includes(String(inputId))) {
-            newEdges.push({
-              id: `${inputId}-${comp.node_id}`,
-              source: String(inputId),
-              target: String(comp.node_id),
-              animated: false,
-            });
-          } else {
-            console.warn(`Edge skipped, input_id not found: ${inputId}`);
+            newEdges.push({ id: `${inputId}-${comp.node_id}`, source: String(inputId), target: String(comp.node_id), animated: false });
           }
         });
       });
 
       setNodes(newNodes);
       setEdges(newEdges);
-
     } catch (error) {
       console.error("Failed to submit task:", error);
     }
@@ -137,31 +120,19 @@ export default function Build() {
             I'm here to support you in completing your tasks…
           </div>
 
-          <TaskInput
-            value={taskDescription}
-            onChange={setTaskDescription}
-            onSubmit={handleTaskSubmit}
-          />
+          <TaskInput value={taskDescription} onChange={setTaskDescription} onSubmit={handleTaskSubmit} />
 
           {showNodeLibrary && (
             <NodeLibrary
               onAddNode={(label: string) => {
-                const type = label.toLowerCase().includes("input")
-                  ? "fileUpload"
-                  : "default";
-
+                const type = label.toLowerCase().includes("input") ? "fileUpload" : "default";
                 const newNode: Node = {
                   id: `node-${nodes.length}`,
                   type,
-                  data: { 
-                    label,
-                    file: null,
-                    setFile: (file: File) =>
-                      setNodeFiles((prev) => ({ ...prev, [`node-${nodes.length}`]: file }))
-                  },
+                  data: { label, file: null, setFile: (file: File) => setNodeFiles(prev => ({ ...prev, [`node-${nodes.length}`]: file })) },
                   position: { x: 100, y: nodes.length * 120 },
                 };
-                setNodes((prev) => [...prev, newNode]);
+                setNodes(prev => [...prev, newNode]);
               }}
             />
           )}
@@ -188,57 +159,37 @@ export default function Build() {
             console.log("Recomposed Flow Sequence:", sequence);
 
             try {
-              // Load the local file
               const fileResponse = await fetch("../test.txt");
               const fileBuffer = await fileResponse.arrayBuffer();
               const uint8Array = new Uint8Array(fileBuffer);
-
-              // Convert to Base64 string for JSON transmission
               const base64Data = btoa(String.fromCharCode(...uint8Array));
-
-              // Get the first node_id from the current nodes (after API response)
               const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
 
-              // Build the request body following ExecuteRequest/InputData format
               const payload = {
                 approved_by_user: true,
                 updated_sequence: sequence,
-                docs_to_use: [
-                  {
-                    node_id: firstNodeId,
-                    data: base64Data,
-                  },
-                ],
+                docs_to_use: [{ node_id: firstNodeId, data: base64Data }],
               };
 
               const res = await fetch("http://127.0.0.1:8000/api/run_flow", {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
               });
 
               const data = await res.json();
               console.log("Second API response:", data);
 
+              setRunResponse(data);
+              setShowResponseModal(true);
             } catch (err) {
               console.error("Error calling second API:", err);
             }
           }}
-
-
-
-
         />
 
-        <RunModal
-          open={showRunModal}
-          onOpenChange={(open: boolean) => setShowRunModal(open)}
-          onRun={(files: File[]) => {
-            console.log("Run clicked with files:", files);
-          }}
-        />
+        {/* Response Modal */}
+        {showResponseModal && <ResponseModal data={runResponse} onClose={() => setShowResponseModal(false)} />}
       </div>
     </div>
   );
