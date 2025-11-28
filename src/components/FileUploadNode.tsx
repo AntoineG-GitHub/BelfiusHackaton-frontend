@@ -1,18 +1,17 @@
 import { Handle, Position } from "@xyflow/react";
-import { useState } from "react";
 
 interface FileUploadNodeProps {
   data: {
     label: string;
+    file: File | null;
+    setFile: (file: File) => void;
   };
 }
 
 export function FileUploadNode({ data }: FileUploadNodeProps) {
-  const [file, setFile] = useState<File | null>(null);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      data.setFile(e.target.files[0]);
       console.log(`File uploaded for node "${data.label}":`, e.target.files[0]);
     }
   };
@@ -23,10 +22,9 @@ export function FileUploadNode({ data }: FileUploadNodeProps) {
 
       <div className="border-2 border-dashed border-gray-400 rounded p-2 text-center text-xs text-gray-500">
         <input type="file" onChange={handleFileChange} className="w-full cursor-pointer" />
-        <p className="mt-1">{file ? file.name : "Drop a file here"}</p>
+        <p className="mt-1">{data.file ? data.file.name : "Drop a file here"}</p>
       </div>
 
-      {/* Optional React Flow handles */}
       <Handle type="target" position={Position.Left} />
       <Handle type="source" position={Position.Right} />
     </div>
