@@ -1,0 +1,481 @@
+{
+  "input_components": [
+    {
+      "name": "Image Input Component",
+      "description": "A component that processes image input data.",
+      "params": {
+        "properties": {
+          "image_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "png",
+            "title": "Image Format"
+          }
+        },
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "image_data": {
+            "format": "binary",
+            "title": "Image Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_data"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "processed_image": {
+            "format": "binary",
+            "title": "Processed Image",
+            "type": "string"
+          }
+        },
+        "required": [
+          "processed_image"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    },
+    {
+      "name": "Audio Input Component",
+      "description": "A component that processes audio input data.",
+      "params": {
+        "properties": {
+          "sample_rate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 16000,
+            "title": "Sample Rate"
+          }
+        },
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "audio_data": {
+            "format": "binary",
+            "title": "Audio Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "audio_data"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "processed_audio": {
+            "format": "binary",
+            "title": "Processed Audio",
+            "type": "string"
+          }
+        },
+        "required": [
+          "processed_audio"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    },
+    {
+      "name": "Document Input Component",
+      "description": "A component that processes document input data.",
+      "params": {
+        "properties": {
+          "file_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "pdf",
+            "title": "File Type"
+          }
+        },
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "document_data": {
+            "format": "binary",
+            "title": "Document Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_data"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "processed_document": {
+            "format": "binary",
+            "title": "Processed Document",
+            "type": "string"
+          }
+        },
+        "required": [
+          "processed_document"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    },
+    {
+      "name": "Text Input Component",
+      "description": "A component that processes text input data.",
+      "params": null,
+      "inputs": {
+        "properties": {
+          "text_data": {
+            "format": "binary",
+            "title": "Text Data",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text_data"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "processed_text": {
+            "title": "Processed Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "processed_text"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    }
+  ],
+  "transformation_components": [
+    {
+      "name": "LLM Component",
+      "description": "A component that interacts with a large language model to generate text based on input.",
+      "params": {
+        "properties": {
+          "prompt": {
+            "title": "Prompt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "img": {
+            "anyOf": [
+              {
+                "items": {
+                  "format": "binary",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Img"
+          }
+        },
+        "required": [
+          "text",
+          "img"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "response": {
+            "title": "Response",
+            "type": "string"
+          }
+        },
+        "required": [
+          "response"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    },
+    {
+      "name": "Speech to Text Component",
+      "description": "A component that converts speech audio input into text transcription.",
+      "params": {
+        "properties": {
+          "prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "audio": {
+            "format": "binary",
+            "title": "Audio",
+            "type": "string"
+          },
+          "filename": {
+            "default": "audio.mp3",
+            "title": "Filename",
+            "type": "string"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "en",
+            "title": "Language"
+          }
+        },
+        "required": [
+          "audio"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": {
+        "properties": {
+          "transcript": {
+            "title": "Transcript",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transcript"
+        ],
+        "title": "Outputs",
+        "type": "object"
+      }
+    }
+  ],
+  "output_components": [
+    {
+      "name": "Save to Folder Component",
+      "description": "A component that saves input file data to a specified folder path.",
+      "params": {
+        "properties": {
+          "file_name": {
+            "title": "File Name",
+            "type": "string"
+          },
+          "folder_path": {
+            "title": "Folder Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file_name",
+          "folder_path"
+        ],
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "file_data": {
+            "anyOf": [
+              {
+                "format": "binary",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Data"
+          },
+          "file_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Text"
+          }
+        },
+        "required": [
+          "file_data",
+          "file_text"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": null
+    },
+    {
+      "name": "Send Email Component",
+      "description": "A component that sends an email with optional attachment and body content.",
+      "params": {
+        "properties": {
+          "recipient_emails": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Recipient Emails",
+            "type": "array"
+          }
+        },
+        "required": [
+          "recipient_emails"
+        ],
+        "title": "Params",
+        "type": "object"
+      },
+      "inputs": {
+        "properties": {
+          "attachment": {
+            "anyOf": [
+              {
+                "format": "binary",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attachment",
+          "body",
+          "subject"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": null
+    },
+    {
+      "name": "Display Component",
+      "description": "A component that displays content to the user interface.",
+      "params": null,
+      "inputs": {
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "format": "binary",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image"
+          }
+        },
+        "required": [
+          "text",
+          "image"
+        ],
+        "title": "Inputs",
+        "type": "object"
+      },
+      "outputs": null
+    }
+  ]
+}

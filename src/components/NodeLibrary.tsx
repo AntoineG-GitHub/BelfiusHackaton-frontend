@@ -1,14 +1,17 @@
 import { NodeCard } from './NodeCard';
+import componentsJson from '../../components_list.json'; // adjust path to your JSON file
 interface NodeLibraryProps {
   onAddNode: (nodeType: string) => void;
 }
 
-// Fake JSON response (replace with real API call later)
-const fakeApiResponse = `{
-  "nodeTypes": ["Summarize", "Export", "Name", "Summarize", "Translate", "Name", "Summarize", "Translate"]
-}`;
+// Extract all component names from the JSON
+const allComponents = [
+  ...componentsJson.input_components,
+  ...componentsJson.transformation_components,
+  ...componentsJson.output_components,
+];
 
-const { nodeTypes } = JSON.parse(fakeApiResponse) as { nodeTypes: string[] };
+const nodeTypes = allComponents.map((comp: any) => comp.name);
 
 export function NodeLibrary({ onAddNode }: NodeLibraryProps) {
   return (
