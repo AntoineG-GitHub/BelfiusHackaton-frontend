@@ -68,10 +68,9 @@ export default function Build() {
       setTaskDescription("");
       setShowNodeLibrary(true);
 
-      // Extract components array from response
       const seq: any[] = Array.isArray(response.components)
-      ? response.components
-      : [];
+        ? response.components
+        : [];
 
       if (!seq.length) {
         console.warn("No components received from API");
@@ -79,16 +78,22 @@ export default function Build() {
       }
 
       // --- CREATE NODES ---
-      const newNodes: Node[] = seq.map((comp, index) => ({
-        id: String(comp.node_id), // ensure string ID
-        type: "default", // use default for now to debug
-        data: { 
-          label: comp.component_name,
-          description: comp.description,
-          params: comp.params
-        },
-        position: { x: 100, y: index * 120 }, // simple vertical layout
-      }));
+      const newNodes: Node[] = seq.map((comp, index) => {
+        const type = comp.component_name.toLowerCase().includes("input")
+          ? "fileUpload" // custom node for input components
+          : "default";
+
+        return {
+          id: String(comp.node_id),
+          type,
+          data: { 
+            label: comp.component_name,
+            description: comp.description,
+            params: comp.params
+          },
+          position: { x: 100, y: index * 120 },
+        };
+      });
 
       // --- CREATE EDGES ---
       const nodeIds = newNodes.map((n) => n.id);
@@ -112,9 +117,6 @@ export default function Build() {
           }
         });
       });
-
-      console.log("Nodes to render:", newNodes);
-      console.log("Edges to render:", newEdges);
 
       setNodes(newNodes);
       setEdges(newEdges);
@@ -145,9 +147,13 @@ export default function Build() {
           {showNodeLibrary && (
             <NodeLibrary
               onAddNode={(label: string) => {
+                const type = label.toLowerCase().includes("input")
+                  ? "fileUpload"
+                  : "default";
+
                 const newNode: Node = {
                   id: `node-${nodes.length}`,
-                  type: "default",
+                  type,
                   data: { label },
                   position: { x: 100, y: nodes.length * 120 },
                 };
