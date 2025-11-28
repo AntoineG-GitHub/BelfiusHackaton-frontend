@@ -1,18 +1,17 @@
 import { Handle, Position } from "@xyflow/react";
-import { useState } from "react";
 
 interface FileUploadNodeProps {
   data: {
     label: string;
+    file: File | null;
+    setFile: (file: File) => void;
   };
 }
 
 export function FileUploadNode({ data }: FileUploadNodeProps) {
-  const [file, setFile] = useState<File | null>(null);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      data.setFile(e.target.files[0]);
       console.log(`File uploaded for node "${data.label}":`, e.target.files[0]);
     }
   };

@@ -23,6 +23,7 @@ export default function Build() {
   const [showRunModal, setShowRunModal] = useState(false);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodeFiles, setNodeFiles] = useState<{ [nodeId: string]: File }>({});
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -77,10 +78,9 @@ export default function Build() {
         return;
       }
 
-      // --- CREATE NODES ---
       const newNodes: Node[] = seq.map((comp, index) => {
         const type = comp.component_name.toLowerCase().includes("input")
-          ? "fileUpload" // custom node for input components
+          ? "fileUpload"
           : "default";
 
         return {
@@ -89,21 +89,21 @@ export default function Build() {
           data: { 
             label: comp.component_name,
             description: comp.description,
-            params: comp.params
+            params: comp.params,
+            file: nodeFiles[String(comp.node_id)] || null,
+            setFile: (file: File) =>
+              setNodeFiles((prev) => ({ ...prev, [comp.node_id]: file }))
           },
           position: { x: 100, y: index * 120 },
         };
       });
 
-      // --- CREATE EDGES ---
       const nodeIds = newNodes.map((n) => n.id);
       const newEdges: Edge[] = [];
 
       seq.forEach((comp) => {
         if (!comp.input_ids) return;
-
         const inputs = Array.isArray(comp.input_ids) ? comp.input_ids : [comp.input_ids];
-
         inputs.forEach((inputId: string) => {
           if (nodeIds.includes(String(inputId))) {
             newEdges.push({
@@ -131,7 +131,6 @@ export default function Build() {
       <SideNavigation />
 
       <div className="absolute left-[134px] top-0 right-0 bottom-0 flex">
-        {/* LEFT PANEL */}
         <div className="bg-white w-[486px] h-full border-r border-[#e7ebee] relative overflow-y-auto">
           <PaEntry />
           <div className="absolute left-[60px] top-[189px] w-[378px] text-black text-[14px]">
@@ -154,7 +153,12 @@ export default function Build() {
                 const newNode: Node = {
                   id: `node-${nodes.length}`,
                   type,
-                  data: { label },
+                  data: { 
+                    label,
+                    file: null,
+                    setFile: (file: File) =>
+                      setNodeFiles((prev) => ({ ...prev, [`node-${nodes.length}`]: file }))
+                  },
                   position: { x: 100, y: nodes.length * 120 },
                 };
                 setNodes((prev) => [...prev, newNode]);
@@ -163,7 +167,6 @@ export default function Build() {
           )}
         </div>
 
-        {/* RIGHT PANEL */}
         <FlowCanvas
           nodes={nodes}
           edges={edges}
@@ -180,7 +183,53 @@ export default function Build() {
             link.click();
             URL.revokeObjectURL(url);
           }}
-          onDone={() => console.log("Done clicked")}
+          onDone={async () => {
+            const sequence = buildSequenceFromFlow();
+            console.log("Recomposed Flow Sequence:", sequence);
+
+            try {
+              // Load the local file
+              const fileResponse = await fetch("../test.txt");
+              const fileBuffer = await fileResponse.arrayBuffer();
+              const uint8Array = new Uint8Array(fileBuffer);
+
+              // Convert to Base64 string for JSON transmission
+              const base64Data = btoa(String.fromCharCode(...uint8Array));
+
+              // Get the first node_id from the current nodes (after API response)
+              const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
+
+              // Build the request body following ExecuteRequest/InputData format
+              const payload = {
+                approved_by_user: true,
+                updated_sequence: sequence,
+                docs_to_use: [
+                  {
+                    node_id: firstNodeId,
+                    data: base64Data,
+                  },
+                ],
+              };
+
+              const res = await fetch("http://127.0.0.1:8000/api/run_flow", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              });
+
+              const data = await res.json();
+              console.log("Second API response:", data);
+
+            } catch (err) {
+              console.error("Error calling second API:", err);
+            }
+          }}
+
+
+
+
         />
 
         <RunModal
