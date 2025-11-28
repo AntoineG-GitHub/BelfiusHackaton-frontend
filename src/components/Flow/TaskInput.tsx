@@ -24,14 +24,14 @@ export function TaskInput({ value, onChange, onSubmit }: TaskInputProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Describe your task."
-        className="flex-1 bg-white border border-[#d6dce2] p-[16px] text-[14px]"
+        className="flex-1 bg-white border border-[#d6dce2] p-[15px] text-[14px] h-[49px] resize-none"
         rows={3}
       />
       
       {/* Send button */}
       <button
         onClick={onSubmit}
-        className="bg-[#dc0078] text-white px-[16px] py-[12px] rounded-[24px] hover:bg-[#c00068] transition-colors"
+        className="bg-[#dc0078] text-white px-[16px] py-[12px] rounded-[22px] hover:bg-[#c00068] transition-colors"
         aria-label="Send task"
       >
         Send
