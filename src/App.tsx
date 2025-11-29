@@ -117,8 +117,8 @@ export default function Build() {
       <div className="absolute left-[134px] top-0 right-0 bottom-0 flex">
         <div className="bg-white w-[486px] h-full border-r border-[#e7ebee] relative overflow-y-auto">
           <PaEntry />
-          <div className="absolute left-[60px] top-[189px] w-[378px] text-black text-[14px]">
-            I'm here to support you in completing your tasks…
+          <div className="absolute left-[60px] top-[189px] w-[378px] text-black text-[14px] tagline">
+            Automate your workflows
           </div>
 
           <TaskInput value={taskDescription} onChange={setTaskDescription} onSubmit={handleTaskSubmit} />

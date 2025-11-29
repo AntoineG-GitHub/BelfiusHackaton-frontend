@@ -1340,3 +1340,8 @@ html {
 .button-cursor {
   cursor: pointer;
 }
+
+.tagline {
+  font-size: 14px;
+  color: #41525d;
+}
