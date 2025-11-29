@@ -2,7 +2,6 @@
  * Flow Canvas Component
  * React Flow diagram canvas with controls
  */
-
 import React from "react"; // ← ADD THIS
 import {
   ReactFlow,
@@ -89,13 +88,37 @@ export function FlowCanvas({
  * FileUploadNode component
  * A custom React Flow node with an internal file upload system
  */
-export function FileUploadNode({ data }: { data: { label: string } }) {
+export function FileUploadNode({ data }: { data: { label: string, dataId: string } }) {
   const [file, setFile] = React.useState<File | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      console.log(`File uploaded for node "${data.label}":`, e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      console.log(`File uploaded for node "${data.label}":`, selectedFile);
+
+      try {
+        // Read the file as an ArrayBuffer and convert to base64 (browser-friendly)
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+
+        // Convert Uint8Array to binary string in chunks to avoid call-stack/arg limits
+        let binary = "";
+        const chunkSize = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+          const chunk = bytes.subarray(i, i + chunkSize);
+          binary += String.fromCharCode.apply(null, Array.prototype.slice.call(chunk));
+        }
+
+        const content_b64 = btoa(binary);
+        console.log(`File content (base64) for node "${data.label}":`, data.dataId, content_b64);
+
+        // Save the base64 string in sessionStorage
+        sessionStorage.setItem(`${data.dataId}`, content_b64);
+        console.log(`File content saved in sessionStorage for node "${data.label}"`);
+      } catch (err) {
+        console.error("Failed to read file content:", err);
+      }
     }
   };
 
