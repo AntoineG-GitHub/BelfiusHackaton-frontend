@@ -1270,13 +1270,25 @@ html {
 
 .react-flow__node-fileUpload {
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid #1a192b;
   border-radius: 8px;
   padding: 8px;
 }
 
 .full-border {
   border: 1px solid rgba(0,0,0,0.08);
+}
+
+.no-border {
+  border: none;
+}
+
+.upload-border {
+  border: 1px dashed rgba(0,0,0,0.25);
+  color: white;
+  width: 133px;
+  height: 25px;
+  display: flex;
 }
 
 .center-text {

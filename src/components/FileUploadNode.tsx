@@ -46,14 +46,14 @@ export function FileUploadNode({ data }: FileUploadNodeProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-300 p-3 rounded-lg shadow-sm w-[200px]">
+    <div className="bg-white border border-gray-300 p-3 rounded-lg shadow-sm w-[200px] no-border">
       <p className="text-sm font-medium text-gray-700 mb-2 center-text">{data.label}</p>
 
       <div className="border-2 border-dashed border-gray-400 rounded p-2 text-center text-xs text-gray-500">
         <input 
           type="file" 
           onChange={handleFileChange} 
-          className="w-full cursor-pointer full-border" 
+          className="w-full cursor-pointer upload-border" 
         />
         {/* <p className="mt-1">{file ? file.name : "Drop a file here"}</p> */}
       </div>
