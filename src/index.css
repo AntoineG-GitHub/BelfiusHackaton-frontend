@@ -1291,6 +1291,14 @@ html {
   display: flex;
 }
 
+.upload-border-green {
+  border: 1px solid green;
+  color: white;
+  width: 133px;
+  height: 25px;
+  display: flex;
+}
+
 .center-text {
   text-align: center;
 }

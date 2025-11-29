@@ -90,11 +90,13 @@ export function FlowCanvas({
  */
 export function FileUploadNode({ data }: { data: { label: string, dataId: string } }) {
   const [file, setFile] = React.useState<File | null>(null);
+  const [uploaded, setUploaded] = React.useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
+      setUploaded(true); // change class when file is uploaded
       console.log(`File uploaded for node "${data.label}":`, selectedFile);
 
       try {
@@ -130,7 +132,8 @@ export function FileUploadNode({ data }: { data: { label: string, dataId: string
         <input
           type="file"
           onChange={handleFileChange}
-          className="w-full cursor-pointer upload-border"
+          // toggle class when a file has been uploaded
+          className={`w-full cursor-pointer ${uploaded ? "upload-border-green" : ""} upload-border`}
         />
         {/* <p className="mt-1">{file ? file.name : "Drop a file here"}</p> */}
       </div>
