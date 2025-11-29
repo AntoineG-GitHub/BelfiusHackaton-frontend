@@ -82,6 +82,7 @@ export default function Build() {
             label: comp.component_name,
             description: comp.description,
             params: comp.params,
+            dataId: comp.node_id,
             file: nodeFiles[String(comp.node_id)] || null,
             setFile: (file: File) =>
               setNodeFiles((prev) => ({ ...prev, [comp.node_id]: file }))
@@ -159,29 +160,28 @@ export default function Build() {
             console.log("Recomposed Flow Sequence:", sequence);
 
             try {
-              const base64Data = sessionStorage.getItem("file-Input");
-              if (!base64Data) {
-                console.error("No file found in sessionStorage for key 'file-Input'");
-                return;
+              const fetchBase64Data = async (nodeId: string) => {
+                console.log(`Fetching base64 data for node ID: ${nodeId}`);
+                const data = sessionStorage.getItem(`${nodeId}`);
+                if (!data) throw new Error(`No data found for node ID: ${nodeId}`);
+                return data;
               }
-              console.log("Retrieved file content from sessionStorage:", base64Data);
 
-              // const fileResponse = await fetch("../test.txt");
-              // try {
-              //   const fileBuffer = await fileResponse.arrayBuffer();
-              // } catch (err) {
-              //   console.error("Error reading file content:", err);
-              //   return;
-              // }
-              // const uint8Array = new Uint8Array(fileBuffer);
-              // const base64Data = btoa(String.fromCharCode(...uint8Array));
-              // const base64Data = btoa(fileResponse);
-              const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
+              // const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
+              // Instead fetch all node_ids that have 'Input' in their label
+              const inputNodes = nodes.filter(n => n.data.label.toLowerCase().includes("input"));
+              // Already create the docs_to_use array for everything in the inputNodes and not just the first one
+              // making something of format [{ node_id: ..., data: ...}, {...}]
+              const docs_to_use = await Promise.all(inputNodes.map(async (node) => {
+                const base64Data = await fetchBase64Data(node.id);
+                return { node_id: node.id, data: base64Data };
+              }));
+              console.log("Documents to use for Flow run:", docs_to_use);
 
               const payload = {
                 approved_by_user: true,
                 updated_sequence: sequence,
-                docs_to_use: [{ node_id: firstNodeId, data: base64Data }],
+                docs_to_use: docs_to_use,
               };
 
               const res = await fetch("http://127.0.0.1:8000/api/run_flow", {

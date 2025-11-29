@@ -88,7 +88,7 @@ export function FlowCanvas({
  * FileUploadNode component
  * A custom React Flow node with an internal file upload system
  */
-export function FileUploadNode({ data }: { data: { label: string } }) {
+export function FileUploadNode({ data }: { data: { label: string, dataId: string } }) {
   const [file, setFile] = React.useState<File | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,10 +111,10 @@ export function FileUploadNode({ data }: { data: { label: string } }) {
         }
 
         const content_b64 = btoa(binary);
-        console.log(`File content (base64) for node "${data.label}":`, content_b64);
+        console.log(`File content (base64) for node "${data.label}":`, data.dataId, content_b64);
 
         // Save the base64 string in sessionStorage
-        sessionStorage.setItem(`file-${data.label}`, content_b64);
+        sessionStorage.setItem(`${data.dataId}`, content_b64);
         console.log(`File content saved in sessionStorage for node "${data.label}"`);
       } catch (err) {
         console.error("Failed to read file content:", err);
