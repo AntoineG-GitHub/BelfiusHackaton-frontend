@@ -24,7 +24,7 @@ export function TaskInput({ value, onChange, onSubmit }: TaskInputProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Describe your task."
-        className="flex-1 bg-white border border-[#d6dce2] p-[15px] text-[14px] h-[49px] resize-none"
+        className="flex-1 bg-white border border-[#d6dce2] p-[15px] text-[14px] h-[49px]"
         rows={3}
       />
       
