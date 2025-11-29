@@ -118,7 +118,7 @@ export default function Build() {
         <div className="bg-white w-[486px] h-full border-r border-[#e7ebee] relative overflow-y-auto">
           <PaEntry />
           <div className="absolute left-[60px] top-[189px] w-[378px] text-black text-[14px] tagline">
-            Automate the mundane, master your time.
+            Automate the mundane, master your time
           </div>
 
           <TaskInput value={taskDescription} onChange={setTaskDescription} onSubmit={handleTaskSubmit} />
