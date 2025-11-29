@@ -30,7 +30,7 @@ export function PaEntry() {
     <div className="absolute bg-white flex items-center gap-[15px] left-[170px] top-[35px] w-[364px] h-[112px]">
       <ChatAvatar />
       <div className="flex-1 text-[36px] font-['Belfius21:Regular'] leading-[44px]">
-        PowerUp
+        PowR UP
       </div>
     </div>
   );
