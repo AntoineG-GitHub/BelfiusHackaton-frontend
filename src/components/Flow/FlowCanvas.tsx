@@ -52,14 +52,14 @@ export function FlowCanvas({
         {onRefresh && (
           <button
             onClick={onRefresh}
-            className="border border-[#dc0078] text-[#dc0078] px-[20px] py-[8px] rounded-[9999px] hover:bg-[#dc0078] hover:text-white transition-colors"
+            className="border border-[#dc0078] text-[#dc0078] px-[20px] py-[8px] rounded-[9999px] hover:bg-[#dc0078] hover:text-white transition-colors button-cursor"
           >
             Save Flow
           </button>
         )}
         <button
           onClick={onDone}
-          className="bg-[#dc0078] text-white px-[20px] py-[8px] rounded-[9999px] hover:bg-[#c00068] transition-colors"
+          className="bg-[#dc0078] text-white px-[20px] py-[8px] rounded-[9999px] hover:bg-[#c00068] transition-colors button-cursor"
         >
           Run Flow
         </button>

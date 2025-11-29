@@ -1289,6 +1289,7 @@ html {
   width: 133px;
   height: 25px;
   display: flex;
+  cursor: pointer;
 }
 
 .upload-border-green {
@@ -1297,6 +1298,7 @@ html {
   width: 133px;
   height: 25px;
   display: flex;
+  cursor: pointer;
 }
 
 .center-text {
@@ -1333,4 +1335,8 @@ html {
 .modal-text {
   overflow-x: auto;
   overflow-y: auto;
+}
+
+.button-cursor {
+  cursor: pointer;
 }
