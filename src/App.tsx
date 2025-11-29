@@ -159,10 +159,23 @@ export default function Build() {
             console.log("Recomposed Flow Sequence:", sequence);
 
             try {
-              const fileResponse = await fetch("../test.txt");
-              const fileBuffer = await fileResponse.arrayBuffer();
-              const uint8Array = new Uint8Array(fileBuffer);
-              const base64Data = btoa(String.fromCharCode(...uint8Array));
+              const base64Data = sessionStorage.getItem("file-Input");
+              if (!base64Data) {
+                console.error("No file found in sessionStorage for key 'file-Input'");
+                return;
+              }
+              console.log("Retrieved file content from sessionStorage:", base64Data);
+
+              // const fileResponse = await fetch("../test.txt");
+              // try {
+              //   const fileBuffer = await fileResponse.arrayBuffer();
+              // } catch (err) {
+              //   console.error("Error reading file content:", err);
+              //   return;
+              // }
+              // const uint8Array = new Uint8Array(fileBuffer);
+              // const base64Data = btoa(String.fromCharCode(...uint8Array));
+              // const base64Data = btoa(fileResponse);
               const firstNodeId = nodes.length > 0 ? nodes[0].id : "default_node";
 
               const payload = {
